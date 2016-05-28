@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mastermind;
 
+import javax.swing.JFrame;
+
 /**
- *
- * @author gprok
+ * UI for the mastermind game
  */
-public class MastermindUI {
+public class MastermindUI extends JFrame {
     
 }
