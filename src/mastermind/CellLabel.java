@@ -1,5 +1,7 @@
 package mastermind;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import javax.swing.JLabel;
 
 /**
@@ -7,7 +9,9 @@ import javax.swing.JLabel;
  * It is necessary to know the position of the label and the color allocated 
  * to it by the user.
  */
-public class MMLabel extends JLabel {
+public class CellLabel extends JLabel {
+    
+    public enum LABEL_TYPE {PLAYABLE, SECRET, FEEDBACK, DUMMY};
     
     /** Row where the label lies */
     private int row;
@@ -16,7 +20,10 @@ public class MMLabel extends JLabel {
     private int column;
     
     /** Color allocated to the label. Initially none */
-    private int color;
+    private Color color;
+    
+    /** Indicates if the label is selectable by the user or not, hidden, or feedback label */
+    private LABEL_TYPE labelType;
     
     
     /**
@@ -24,10 +31,11 @@ public class MMLabel extends JLabel {
      * @param r The row of the label
      * @param c The column of the label 
      */
-    public MMLabel(int r, int c) {
+    public CellLabel(int r, int c, LABEL_TYPE lType) {
         row = r;
         column = c;
-        color = -1;
+        color = null;
+        labelType = lType;
     }
 
     
@@ -71,7 +79,7 @@ public class MMLabel extends JLabel {
      * Color accessor
      * @return The color
      */
-    public int getColor() {
+    public Color getColor() {
         return color;
     }
 
@@ -80,8 +88,24 @@ public class MMLabel extends JLabel {
      * Color mutator
      * @param color The value for color 
      */
-    public void setColor(int color) {
+    public void setColor(Color color) {
         this.color = color;
+        System.out.println("New color " + color);
+    }
+    
+    
+    public void paintComponent(Graphics g) {
+        
+        int width = this.getWidth();
+        int height = this.getHeight();
+        
+        if(labelType == LABEL_TYPE.PLAYABLE && color == null) {
+            g.fillOval(width/2-2, height/2-2, 4, 4);
+        }
+        else if(labelType == LABEL_TYPE.PLAYABLE) {
+            g.setColor(color);
+            g.fillOval(width/2-10, height/2-10, 20, 20);
+        }
     }
     
 }
