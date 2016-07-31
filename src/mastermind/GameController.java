@@ -3,41 +3,43 @@
  */
 package mastermind;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
- * Controls the game execution 
+ * Controls the execution of the game.
  * @author gprok
  */
 public class GameController implements ActionListener, MouseListener {
     
     public static final int ROWS = 12;
-    public static final int TOTAL_COLORS = 6;
+    
+    private Board board;
     
     private GameFrame gameFrame;
     private BoardPanel gameBoardPanel;
     private ButtonsPanel btnsPanel;
     
-    private Board gameBoard;
-    
-    private Color currentColor;
+    private int selectedColor;
     
     private int round;
     
+    
     public GameController() {
-        currentColor = null;
-        round = ROWS - 1; // reduce by one to match array rows
+        board = new Board();
+        board.setSecretComination();
+        
+        selectedColor = Cell.TRANSPARENT;
+        round = 12;
         
         gameFrame = new GameFrame();
-        gameBoardPanel = new BoardPanel(this);
+        gameBoardPanel = new BoardPanel(this, board);
         btnsPanel = new ButtonsPanel(this);
         
-        gameBoard = new Board();
         
         gameFrame.addBoardPanel(gameBoardPanel);
         gameFrame.addButtonsPanel(btnsPanel);
@@ -46,56 +48,65 @@ public class GameController implements ActionListener, MouseListener {
     }
     
     
-    public static void main(String [] args) {
-        GameController game = new GameController();
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
+       
         String action = e.getActionCommand();
         JButton actionBtn = (JButton)e.getSource();
         
         System.out.println(action);
         
+        
         if(action.equals("Guess")) {
             
+            int whiteFeedback = board.getWhiteFeedback(round);
+            int redFeedback = board.getRedFeedback(round);
+            
+            board.getCellAt(round, 4).setRedsAndWhites(redFeedback, whiteFeedback);
+            
             round--;
-            System.out.println("Round now is " + round);
             
             btnsPanel.disableGuessBtn();
+            
+            gameBoardPanel.repaint();
+            
+            if (redFeedback == 4) {
+                JOptionPane.showMessageDialog(gameFrame, "Congrats!");
+                round = 0;
+            }
+            else if(round == 0) {
+                JOptionPane.showMessageDialog(gameFrame, "Game over");
+            }
         }
         else {
             btnsPanel.setSelectedColorBtn(actionBtn);
-            setColor(action);
+            selectedColor = Integer.parseInt(action);
+            //setColor(action);
         }
+       
     }
     
-    
-    
-    public void setColor(String clr) {
-        if(clr.equals("RED")) {
-            currentColor = Color.RED;
-        }
-        else if(clr.equals("ORANGE")) {
-            currentColor = Color.ORANGE;
-        }
-        else if(clr.equals("YELLOW")) {
-            currentColor = Color.YELLOW;
-        }
-        else if(clr.equals("GREEN")) {
-            currentColor = Color.GREEN;
-        }
-        else if(clr.equals("BLUE")) {
-            currentColor = Color.BLUE;
-        }
-        else if(clr.equals("PURPLE")) {
-            currentColor = new Color(128, 0, 128);
-        }
-    }
-
     @Override
     public void mouseClicked(MouseEvent e) {
+        
         CellLabel label = (CellLabel)e.getSource();
+        Cell cell = label.getCell();
+        
+        System.out.println(cell.getRow() + " - " + cell.getCol());
+         
+        if(cell.getRow() == round) {
+            cell.setColor(selectedColor);
+            
+            if(board.isRowCompleted(cell.getRow())) {
+                btnsPanel.enableGuessBtn();
+            }
+        }
+        else {
+            System.out.println("Not in current round");
+        }
+       
+        gameBoardPanel.repaint();
+        /*
         int row = label.getRow(); 
         int col = label.getColumn();
         String text = row + " - " + col;
@@ -109,9 +120,8 @@ public class GameController implements ActionListener, MouseListener {
                 btnsPanel.enableGuessBtn();
             }
         }
-        else {
-            System.out.println(text + " not in current round");
-        }
+        
+*/
     }
 
     @Override
@@ -133,7 +143,5 @@ public class GameController implements ActionListener, MouseListener {
     public void mouseExited(MouseEvent e) {
         // Do nothing
     }
-
-    
     
 }

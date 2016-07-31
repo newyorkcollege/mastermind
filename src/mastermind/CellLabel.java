@@ -9,88 +9,51 @@ import javax.swing.JLabel;
  * It is necessary to know the position of the label and the color allocated 
  * to it by the user.
  */
-public class CellLabel extends JLabel {
+public class CellLabel extends JLabel implements CellObserver {
     
-    public enum LABEL_TYPE {PLAYABLE, SECRET, FEEDBACK, DUMMY};
     
-    /** Row where the label lies */
-    private int row;
-    
-    /** Column where the label lies */
-    private int column;
-    
-    /** Color allocated to the label. Initially none */
-    private Color color;
-    
-    /** Indicates if the label is selectable by the user or not, hidden, or feedback label */
-    private LABEL_TYPE labelType;
+    private Cell cell;
     
     
     /**
      * Class constructor
-     * @param r The row of the label
-     * @param c The column of the label 
      */
-    public CellLabel(int r, int c, LABEL_TYPE lType) {
-        row = r;
-        column = c;
-        color = null;
-        labelType = lType;
+    public CellLabel(Cell cell) {
+        this.cell = cell;
     }
 
+    public Cell getCell() {
+        return cell;
+    }
     
-    /**
-     * Row accessor
-     * @return The row of the label
-     */
-    public int getRow() {
-        return row;
+    
+    
+    public Color findColor(int clr) {
+        if(clr == 1) {
+            return Color.RED;
+        }
+        else if(clr == 2) {
+            return Color.ORANGE;
+        }
+        else if(clr == 3) {
+            return Color.YELLOW;
+        }
+        else if(clr == 4) {
+            return Color.GREEN;
+        }
+        else if(clr == 5) {
+            return Color.BLUE;
+        }
+        else if(clr == 6) {
+            return Color.MAGENTA;
+        }
+        else { // shouldn't reach this point
+            return Color.WHITE;
+        }
     }
 
-    
-    /**
-     * Row mutator
-     * @param row The value for the row
-     */
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    
-    /**
-     * Column accessor
-     * @return The column
-     */
-    public int getColumn() {
-        return column;
-    }
-
-    
-    /**
-     * Column mutator
-     * @param column The value for the column
-     */
-    public void setColumn(int column) {
-        this.column = column;
-    }
-
-    
-    /**
-     * Color accessor
-     * @return The color
-     */
-    public Color getColor() {
-        return color;
-    }
-
-    
-    /**
-     * Color mutator
-     * @param color The value for color 
-     */
-    public void setColor(Color color) {
-        this.color = color;
-        System.out.println("New color " + color);
+    public void update() {
+        this.repaint();
     }
     
     
@@ -99,13 +62,29 @@ public class CellLabel extends JLabel {
         int width = this.getWidth();
         int height = this.getHeight();
         
-        if(labelType == LABEL_TYPE.PLAYABLE && color == null) {
+        if (cell.getType() == Cell.PLAYABLE && cell.getColor() == Cell.TRANSPARENT) {
+            g.setColor(Color.BLACK);
             g.fillOval(width/2-2, height/2-2, 4, 4);
         }
-        else if(labelType == LABEL_TYPE.PLAYABLE) {
-            g.setColor(color);
+        else if (cell.getType() == Cell.PLAYABLE) {
+            g.setColor(findColor(cell.getColor()));
             g.fillOval(width/2-10, height/2-10, 20, 20);
+        }
+        else if(cell.getType() == Cell.FEEDBACK) {
+            g.setColor(Color.RED);
+            int col = 10;
+            for(int i = 0; i < cell.getReds(); i++) {
+                g.fillOval(col, 8, 7, 7);
+                col += 10;
+            }
+            g.setColor(Color.WHITE);
+            col = 10;
+            for(int i = 0; i < cell.getWhites(); i++) {
+                g.fillOval(col, 18, 7, 7);
+                col += 10;
+            }
         }
     }
     
 }
+

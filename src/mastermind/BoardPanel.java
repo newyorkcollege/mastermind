@@ -24,7 +24,7 @@ public class BoardPanel extends JPanel {
     private JPanel secretPanel;
     private JPanel mainPanel;
     
-    public BoardPanel(MouseListener listener) {
+    public BoardPanel(MouseListener listener, Board board) {
         mainPanel = new JPanel(new GridLayout(GameController.ROWS + 1, 5, 2, 2));
         
         this.setLayout(new BorderLayout());
@@ -34,20 +34,24 @@ public class BoardPanel extends JPanel {
         
         for(int r = 0; r < GameController.ROWS + 1; r++) {
             for(int c = 0; c < 5; c++) {
-                if(r == 0 && c < 4) { 
-                    cellLabels[r][c] = new CellLabel(-1, -1, CellLabel.LABEL_TYPE.SECRET);
+                
+                Cell cell = board.getCellAt(r, c);
+                
+                cellLabels[r][c] = new CellLabel(cell);
+                    
+                if(cell.getType() == Cell.SECRET) { 
                     cellLabels[r][c].setBackground(Color.RED);
                 }
-                else if(r == 0 && c == 4) { 
-                    cellLabels[r][c] = new CellLabel(-1, -1, CellLabel.LABEL_TYPE.DUMMY);
+                else if(cell.getType() == Cell.DUMMY) { 
+                    // no action
                 }
-                else if(c == 4) {
-                    cellLabels[r][c] = new CellLabel(r-1, c, CellLabel.LABEL_TYPE.FEEDBACK);
+                else if(cell.getType() == Cell.FEEDBACK) {
+                    // no action
                 }
                 else {
-                    cellLabels[r][c] = new CellLabel(r-1, c, CellLabel.LABEL_TYPE.PLAYABLE);
                     cellLabels[r][c].addMouseListener(listener);
                 }
+                
                 cellLabels[r][c].setBorder(BorderFactory.createEtchedBorder());
                 mainPanel.add(cellLabels[r][c]);
             }
@@ -56,12 +60,5 @@ public class BoardPanel extends JPanel {
         this.add(mainPanel, BorderLayout.CENTER);
     }
     
-    
-    public void setLabelColor(int row, int col, Color color) {
-        cellLabels[row+1][col].setColor(color);
-        cellLabels[row+1][col].repaint();
-        
-        this.repaint();
-    }
-    
 }
+

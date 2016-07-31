@@ -3,93 +3,115 @@
  */
 package mastermind;
 
-import java.awt.Color;
 import java.util.Random;
 
 /**
- * Logical representation of the game board
+ * Logical representation of the game board.
+ * Consists of cells. 
+ * Has one more row of cells for the secret (row 0) and 
+ * one more column for the feedback (col 4)
  * @author gprok
  */
 public class Board {
     
-    private Cell [][] board;
-    private Cell [] secretBoard;
+    /** The board of the game */
+    private Cell board[][];
+    
     
     public Board() {
-        board = new Cell[GameController.ROWS][4];
-        for(int r = 0; r < GameController.ROWS; r++) {
-            for(int c = 0; c < 4; c++) {
-                board[r][c] = new Cell();
+        board = new Cell[13][5];
+        
+        for(int r = 0; r < 13; r++) {
+            for(int c = 0; c < 5; c++) {
+                if(r == 0 && c < 4) { 
+                    board[r][c] = new Cell(Cell.SECRET, r, c);
+                    // cellLabels[r][c].setBackground(Color.RED);
+                }
+                else if(r == 0 && c == 4) { 
+                    board[r][c] = new Cell(Cell.DUMMY, r, c);
+                }
+                else if(c == 4) {
+                    board[r][c] = new Cell(Cell.FEEDBACK, r, c);
+                }
+                else {
+                    board[r][c] = new Cell(Cell.PLAYABLE, r, c);
+                    // cellLabels[r][c].addMouseListener(listener);
+                }
+                // cellLabels[r][c].setBorder(BorderFactory.createEtchedBorder());
+                // mainPanel.add(cellLabels[r][c]);
             }
         }
-        secretBoard = new Cell[4];
-        for(int i = 0; i < 4; i++) {
-            secretBoard[i] = new Cell();
-        }
-    }
-    
-    public void setSecretComination() {
-        Random rnd = new Random();
-        
-        for(int i = 0; i < 4; i++) {
-            boolean colorSet;
-            do {
-                colorSet = true;
-                int color = rnd.nextInt(GameController.TOTAL_COLORS);
-                System.out.println(color);
-                secretBoard[i].setColor(getColorValue(rnd.nextInt(6)));
-                for(int j = 0; j < i; j++) {
-                    if(secretBoard[i].getColor() == secretBoard[j].getColor()) {
-                        // Color already selected
-                        colorSet = false;
-                        break;
-                    }
-                }              
-            } while(!colorSet);
-        }
     }
     
     
-    public Color getColorValue(int c) {
-        if(c == 0) {
-            return Color.RED;
-        }
-        else if(c == 1) {
-            return Color.ORANGE;
-        }
-        else if(c == 2) {
-            return Color.YELLOW;
-        }
-        else if(c == 3) {
-            return Color.GREEN;
-        }
-        else if(c == 4) {
-            return Color.BLUE;
-        }
-        else if(c == 5) {
-            return new Color(128, 0, 128);
-        }
-        
-        return null;
-        
-    }
     
     public Cell getCellAt(int row, int col) {
         return board[row][col];
     }
     
     
-    public void setCellColor(Color color, int row, int col) {
-        board[row][col].setColor(color);
-    }
-    
     public boolean isRowCompleted(int row) {
         for(int i = 0; i < 4; i++) {
-            if(getCellAt(row, i).getColor() == null) {
+            if(board[row][i].getColor() == Cell.TRANSPARENT) {
                 return false;
             }
         }
         return true;
+    }
+    
+    
+    
+    public void setSecretComination() {
+        Random rnd = new Random();
+        
+        System.out.println("=== SECRET COMBINATION ===");
+        
+        for(int i = 0; i < 4; i++) {
+            boolean colorSet;
+            do {
+                colorSet = true;
+                int color = rnd.nextInt(6) + 1; // Get random value 1 - 6
+                board[0][i].setColor(color);
+                for(int j = 0; j < i; j++) {
+                    if(board[0][i].getColor() == board[0][j].getColor()) {
+                        // Color already selected
+                        colorSet = false;
+                        break;
+                    }
+                }              
+            } while(!colorSet);
+            
+            System.out.print(board[0][i].getColor() + " ");
+        }
+        
+        System.out.println("=== END OF SECRET COMBINATION ===");
+    }
+    
+    
+    int getWhiteFeedback(int row) {
+        int total = 0;
+        
+        for(int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if(i != j && getCellAt(row, i).getColor() == getCellAt(0, j).getColor()) {
+                    total++;
+                }
+            }
+        }
+        
+        return total;
+    }
+    
+    int getRedFeedback(int row) {
+        int total = 0;
+        
+        for(int i = 0; i < 4; i++) {
+            if(getCellAt(row, i).getColor() == getCellAt(0, i).getColor()) {
+                total++;
+            }
+        }
+        
+        return total;
     }
     
 }

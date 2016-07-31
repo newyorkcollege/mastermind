@@ -9,8 +9,11 @@ package mastermind;
  *
  * @author gprok
  */
-public interface GuessListener {
+public class Mastermind {
     
-    public void makeGuess();
+    public static void main(String [] args) {
+        GameController game = new GameController();
+        
+    }
     
 }
